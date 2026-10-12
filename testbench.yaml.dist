@@ -1,0 +1,3 @@
+# Read by Larastan's application, so it knows the package's views.
+providers:
+  - Ruvelo\FilamentSecurityAlerts\FilamentSecurityAlertsServiceProvider
