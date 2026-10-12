@@ -1,0 +1,51 @@
+name: pages
+
+# Publishes the site: a gallery of the screenshots in art/, linking to the
+# package's live demo. Filament panels are Livewire components and need a server,
+# so unlike the package there is no static demo of the plugin itself. Regenerate
+# the screenshots with demo/screenshots.sh and commit art/.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Build the gallery
+        run: php demo/build.php build/site
+
+      - name: Add the images
+        run: cp -r art build/site/art
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
