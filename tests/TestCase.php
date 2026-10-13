@@ -16,10 +16,12 @@ use Illuminate\Support\Str;
 use Livewire\Features\SupportTesting\Testable;
 use Orchestra\Testbench\TestCase as Orchestra;
 use PHPUnit\Framework\Assert;
+use Psr\Http\Client\ClientInterface;
 use Ruvelo\FilamentSecurityAlerts\FilamentSecurityAlertsServiceProvider;
 use Ruvelo\FilamentSecurityAlerts\SecurityAlertsPlugin;
 use Ruvelo\FilamentSecurityAlerts\Tests\Fixtures\AdminPanelProvider;
 use Ruvelo\FilamentSecurityAlerts\Tests\Fixtures\User;
+use Ruvelo\FilamentSecurityAlerts\Tests\Support\HttpFacadeClient;
 use Ruvelo\SecurityAlerts\Notifier;
 use Ruvelo\SecurityAlerts\SecurityAlertsServiceProvider;
 
@@ -73,6 +75,7 @@ abstract class TestCase extends Orchestra
         $app['config']->set('auth.providers.users.model', User::class);
         $app['config']->set('security-alerts.composer.lockfile', self::FIXTURES.'/composer.lock');
         $app['config']->set('security-alerts.npm.lockfile', self::FIXTURES.'/package-lock.json');
+        $app['config']->set('security-alerts.source', 'public');
         $app['config']->set('security-alerts.notify.mail', []);
         $app['config']->set('security-alerts.notify.slack', null);
     }
@@ -94,7 +97,9 @@ abstract class TestCase extends Orchestra
         parent::setUp();
 
         // No test may reach Packagist, OSV or CISA.
+        // The package's own HTTP is bound to a client that goes through the Http facade, so Http::fake() sees it.
         Http::preventStrayRequests();
+        $this->app->instance(ClientInterface::class, new HttpFacadeClient);
         Sleep::fake();
         Carbon::setTestNow('2026-10-12 09:00:00');
 

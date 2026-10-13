@@ -40,8 +40,10 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Orchestra\Testbench\Foundation\Application;
+use Psr\Http\Client\ClientInterface;
 use Ruvelo\FilamentSecurityAlerts\FilamentSecurityAlertsServiceProvider;
 use Ruvelo\FilamentSecurityAlerts\SecurityAlertsPlugin;
+use Ruvelo\FilamentSecurityAlerts\Tests\Support\HttpFacadeClient;
 use Ruvelo\FilamentSecurityAlerts\Tests\TestCase;
 use Ruvelo\SecurityAlerts\Models\SecurityAlert;
 use Ruvelo\SecurityAlerts\SecurityAlerts;
@@ -135,6 +137,7 @@ class DemoConfig extends ServiceProvider
             'session.files' => realpath(DEMO_DIR.'/storage/framework/sessions'),
             'cache.default' => 'file',
             'cache.stores.file.path' => (string) realpath(DEMO_DIR.'/storage/framework/cache'),
+            'security-alerts.source' => 'public',
             'security-alerts.composer.lockfile' => FIXTURES.'/composer.lock',
             'security-alerts.npm.lockfile' => FIXTURES.'/package-lock.json',
             'security-alerts.notify.mail' => [],
@@ -184,6 +187,8 @@ function demo_seed(LaravelApplication $app): void
     $fixture = fn (string $name): array => json_decode((string) file_get_contents(FIXTURES.'/'.$name), true, 512, JSON_THROW_ON_ERROR);
     // One set of answers, which turns empty once everything is patched.
     $patched = false;
+    // The package's HTTP goes through PSR-18; send it through Http::fake() instead of the network.
+    app()->instance(ClientInterface::class, new HttpFacadeClient);
     Http::fake([
         'packagist.org/api/security-advisories/*' => function () use ($fixture, &$patched) {
             return Http::response($patched ? ['advisories' => []] : $fixture('packagist.json'));

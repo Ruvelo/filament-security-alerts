@@ -6,6 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-13
+
+Requires `ruvelo/laravel-security-alerts` ^2.0, which moved its scanning to the shared core `ruvelo/security-advisories`. Nothing to do when upgrading: the stored alerts and the table are unchanged.
+
+### Added
+
+- The page's status line says where the last "Check now" got its answers: "via Valtry, signed" or "via public feeds". It is only shown while that check is the latest on record.
+
+### Changed
+
+- Requires `ruvelo/laravel-security-alerts` ^2.0 (was ^1.0), which asks Valtry's Advisory API by default and falls back to the public feeds. "Check now" does the same.
+- Unrated severities use the core's `Severity::NotRated` (was `Unknown`); they still show as low.
+
 ## [1.0.0] - 2026-10-12
 
 ### Added
@@ -20,5 +33,6 @@ All notable changes to this project are documented here. The format follows
 - Laravel Boost guidelines (`resources/boost/guidelines/core.blade.php`).
 - Screenshots of a Halyard admin panel in light and dark, and a gallery site on GitHub Pages.
 
-[Unreleased]: https://github.com/Ruvelo/filament-security-alerts/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Ruvelo/filament-security-alerts/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Ruvelo/filament-security-alerts/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Ruvelo/filament-security-alerts/releases/tag/v1.0.0

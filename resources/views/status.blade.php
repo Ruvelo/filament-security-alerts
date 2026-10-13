@@ -18,7 +18,7 @@
     @else
         <x-filament::badge color="gray" :icon="\Filament\Support\Icons\Heroicon::Clock">Checked</x-filament::badge>
         <span>
-            <time datetime="{{ $summary->checkedAt?->toIso8601String() }}" title="{{ $summary->checkedAt?->toDayDateTimeString() }}">{{ $summary->checkedAt?->diffForHumans() }}</time>@if ($summary->packages !== null), {{ \Ruvelo\FilamentSecurityAlerts\Support\Summary::noun('package', $summary->packages) }} looked at @endif
+            <time datetime="{{ $summary->checkedAt?->toIso8601String() }}" title="{{ $summary->checkedAt?->toDayDateTimeString() }}">{{ $summary->checkedAt?->diffForHumans() }}</time>@if ($summary->packages !== null), {{ \Ruvelo\FilamentSecurityAlerts\Support\Summary::noun('package', $summary->packages) }} looked at @endif@if ($summary->source !== null) · via {{ $summary->source }}@endif
         </span>
     @endif
 

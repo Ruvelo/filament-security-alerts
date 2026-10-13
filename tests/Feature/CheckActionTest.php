@@ -33,7 +33,7 @@ class CheckActionTest extends TestCase
         $this->assertSame(13, SecurityAlert::query()->open()->count());
         $this->assertSame(1, SecurityAlert::query()->exploited()->count());
         $this->assertNotNull(SecurityAlerts::lastCheck());
-        $page->assertSee('packages looked at')->assertDontSee('Not checked yet')->assertDontSee('Out of date');
+        $page->assertSee('packages looked at')->assertSee('via public feeds')->assertDontSee('Not checked yet')->assertDontSee('Out of date');
     }
 
     public function test_the_first_check_reports_new_alerts(): void

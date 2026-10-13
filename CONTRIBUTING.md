@@ -13,13 +13,14 @@ Thanks for helping! Bug reports, docs fixes and features are all welcome.
 
 You need PHP 8.3+ and Composer. No database server: tests run on in-memory SQLite.
 
-`ruvelo/laravel-security-alerts` isn't on Packagist yet, so Composer needs to be told where it is. Add it to your own checkout (don't commit this) before installing:
+`ruvelo/laravel-security-alerts` and its core, `ruvelo/security-advisories`, aren't on Packagist yet, so Composer needs to be told where they are. Add them to your own checkout (don't commit this) before installing:
 
 ```bash
 composer config repositories.lsa vcs https://github.com/Ruvelo/laravel-security-alerts
+composer config repositories.sa vcs https://github.com/Ruvelo/security-advisories
 ```
 
-CI does the same. To develop against a local copy of the package, use a `path` repository instead.
+CI does the same. To develop against local copies, use `path` repositories instead, in a git-ignored `composer.local.json` (`COMPOSER=composer.local.json composer update`).
 
 ```bash
 git clone https://github.com/<you>/filament-security-alerts && cd filament-security-alerts

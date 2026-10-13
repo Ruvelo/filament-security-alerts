@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Schema;
 use Ruvelo\FilamentSecurityAlerts\Pages\SecurityAlertsPage;
 use Ruvelo\FilamentSecurityAlerts\SecurityAlertsPlugin;
 use Ruvelo\FilamentSecurityAlerts\Tests\TestCase;
+use Ruvelo\SecurityAdvisories\Severity;
 use Ruvelo\SecurityAlerts\Models\SecurityAlert;
-use Ruvelo\SecurityAlerts\Severity;
 
 class PluginTest extends TestCase
 {

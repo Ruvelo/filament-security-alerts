@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Ruvelo\FilamentSecurityAlerts\Support;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Ruvelo\SecurityAdvisories\Report;
+use Ruvelo\SecurityAdvisories\Severity;
 use Ruvelo\SecurityAlerts\Models\SecurityAlert;
 use Ruvelo\SecurityAlerts\SecurityAlerts;
-use Ruvelo\SecurityAlerts\Severity;
 
 /**
  * What the badge, the widget and the page's status line say, worked out once
@@ -35,7 +38,10 @@ final readonly class Summary
         public bool $complete = true,
         public bool $installed = true,
         public int $staleAfterHours = 48,
+        public ?string $source = null,
     ) {}
+
+    private const SOURCE_KEY = 'filament-security-alerts:source';
 
     public static function current(int $staleAfterHours = 48): self
     {
@@ -56,7 +62,7 @@ final readonly class Summary
                 Severity::Critical => 'critical',
                 Severity::High => 'high',
                 Severity::Medium => 'medium',
-                Severity::Low, Severity::Unknown => 'low',
+                Severity::Low, Severity::NotRated => 'low',
             }]++;
 
             if ($alert->isExploited()) {
@@ -82,7 +88,43 @@ final readonly class Summary
             packages: ($last['packages'] ?? 0) > 0 ? $last['packages'] : null,
             complete: $last['complete'] ?? true,
             staleAfterHours: $staleAfterHours,
+            source: self::sourceOf($last['checked_at'] ?? null),
         );
+    }
+
+    /**
+     * The core's last-check record doesn't say where the answers came from, so
+     * "Check now" notes it here, with the time. It only counts while it is
+     * from the last check on record: a later scheduled check outdates it.
+     */
+    public static function rememberSource(Report $report): void
+    {
+        self::cache()->forever(self::SOURCE_KEY, [
+            'at' => CarbonImmutable::now()->toIso8601String(),
+            'label' => SecurityAlerts::sourceLabel($report),
+        ]);
+    }
+
+    private static function sourceOf(?CarbonImmutable $checkedAt): ?string
+    {
+        if ($checkedAt === null) {
+            return null;
+        }
+
+        $data = self::cache()->get(self::SOURCE_KEY);
+
+        if (! is_array($data) || ! is_string($data['at'] ?? null) || ! is_string($data['label'] ?? null)) {
+            return null;
+        }
+
+        return CarbonImmutable::parse($data['at'])->gte($checkedAt) ? $data['label'] : null;
+    }
+
+    private static function cache(): Repository
+    {
+        $store = config('security-alerts.cache.store');
+
+        return Cache::store(is_string($store) && $store !== '' ? $store : null);
     }
 
     /**

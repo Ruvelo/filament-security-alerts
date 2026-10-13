@@ -27,12 +27,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Url;
 use Ruvelo\FilamentSecurityAlerts\SecurityAlertsPlugin;
 use Ruvelo\FilamentSecurityAlerts\Support\Summary;
+use Ruvelo\SecurityAdvisories\Severity;
 use Ruvelo\SecurityAlerts\CheckResult;
 use Ruvelo\SecurityAlerts\Ecosystem;
 use Ruvelo\SecurityAlerts\Exceptions\NotInstalled;
 use Ruvelo\SecurityAlerts\Models\SecurityAlert;
 use Ruvelo\SecurityAlerts\SecurityAlerts;
-use Ruvelo\SecurityAlerts\Severity;
 use UnitEnum;
 
 /**
@@ -179,6 +179,8 @@ class SecurityAlertsPage extends Page implements HasTable
             return;
         }
 
+        Summary::rememberSource($result->report);
+
         self::announce($result)->send();
     }
 
@@ -233,7 +235,7 @@ class SecurityAlertsPage extends Page implements HasTable
                         Severity::Critical => 'danger',
                         Severity::High => 'warning',
                         Severity::Medium => 'info',
-                        Severity::Low, Severity::Unknown => 'gray',
+                        Severity::Low, Severity::NotRated => 'gray',
                     }),
                 TextColumn::make('package')
                     ->weight('medium')

@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Schema;
 use Livewire\Livewire;
 use Ruvelo\FilamentSecurityAlerts\Pages\SecurityAlertsPage;
 use Ruvelo\FilamentSecurityAlerts\Tests\TestCase;
+use Ruvelo\SecurityAdvisories\Severity;
 use Ruvelo\SecurityAlerts\Ecosystem;
 use Ruvelo\SecurityAlerts\Models\SecurityAlert;
-use Ruvelo\SecurityAlerts\Severity;
 
 class PageTest extends TestCase
 {
@@ -22,7 +22,7 @@ class PageTest extends TestCase
             'high' => SecurityAlert::factory()->severity(Severity::High)->forPackage('axios', '1.7.0', Ecosystem::Npm)->create(['title' => 'SSRF in axios', 'fixed_in' => '1.8.2']),
             'medium' => SecurityAlert::factory()->forPackage('acme/ui', '1.0.0')->create(['title' => 'XSS in the admin']),
             'low' => SecurityAlert::factory()->severity(Severity::Low)->forPackage('acme/log', '1.0.0')->create(['title' => 'Info leak', 'fixed_in' => null]),
-            'unknown' => SecurityAlert::factory()->severity(Severity::Unknown)->forPackage('acme/old', '0.1.0')->create(),
+            'unknown' => SecurityAlert::factory()->severity(Severity::NotRated)->forPackage('acme/old', '0.1.0')->create(),
             'fixed' => SecurityAlert::factory()->resolved()->forPackage('acme/fixed', '1.0.0')->create(),
         ];
     }
@@ -249,6 +249,21 @@ class PageTest extends TestCase
             ->assertSee('5 hours ago')
             ->assertSee('105 packages looked at')
             ->assertDontSee('Out of date');
+    }
+
+    public function test_the_status_line_only_names_a_source_it_knows_is_current(): void
+    {
+        $this->signIn();
+        $checked = now()->subHours(2);
+        cache()->forever('security-alerts:last-check', ['checked_at' => $checked->toIso8601String(), 'packages' => 10, 'complete' => true]);
+        cache()->forever('filament-security-alerts:source', ['at' => $checked->addSecond()->toIso8601String(), 'label' => 'Valtry, signed']);
+
+        Livewire::test(SecurityAlertsPage::class)->assertSee('via Valtry, signed');
+
+        // A later check (the scheduler's) outdates the note.
+        cache()->forever('security-alerts:last-check', ['checked_at' => now()->subHour()->toIso8601String(), 'packages' => 10, 'complete' => true]);
+
+        Livewire::test(SecurityAlertsPage::class)->assertDontSee('via Valtry');
     }
 
     public function test_the_status_line_warns_when_the_check_is_old(): void

@@ -14,8 +14,8 @@ use Ruvelo\FilamentSecurityAlerts\Pages\SecurityAlertsPage;
 use Ruvelo\FilamentSecurityAlerts\SecurityAlertsPlugin;
 use Ruvelo\FilamentSecurityAlerts\Tests\TestCase;
 use Ruvelo\FilamentSecurityAlerts\Widgets\SecurityAlertsOverview;
+use Ruvelo\SecurityAdvisories\Severity;
 use Ruvelo\SecurityAlerts\Models\SecurityAlert;
-use Ruvelo\SecurityAlerts\Severity;
 
 class WidgetTest extends TestCase
 {
@@ -33,7 +33,7 @@ class WidgetTest extends TestCase
         SecurityAlert::factory()->severity(Severity::High)->count(4)->create();
         SecurityAlert::factory()->count(5)->create();
         SecurityAlert::factory()->severity(Severity::Low)->create();
-        SecurityAlert::factory()->severity(Severity::Unknown)->create();
+        SecurityAlert::factory()->severity(Severity::NotRated)->create();
         SecurityAlert::factory()->resolved()->severity(Severity::Critical)->create();
 
         $stats = Livewire::test(SecurityAlertsOverview::class)->assertOk()->assertSee('Security alerts')->instance();

@@ -80,7 +80,7 @@ Watching many sites? [Valtry](https://valtry.co.uk/?utm_source=ruvelo&utm_medium
 - PHP 8.3+
 - Laravel 12 or 13, with the [scheduler](https://laravel.com/docs/scheduling#running-the-scheduler) running, so the daily check happens
 - Filament 4 or 5
-- [`ruvelo/laravel-security-alerts`](https://github.com/Ruvelo/laravel-security-alerts) ^1.0 (installed with this plugin)
+- [`ruvelo/laravel-security-alerts`](https://github.com/Ruvelo/laravel-security-alerts) ^2.0 (installed with this plugin)
 
 ## Install
 
@@ -152,7 +152,7 @@ Read the configuration back with `SecurityAlertsPlugin::get()`, the instance reg
 
 **Why doesn't Check now send mail?** The scheduled check sends one email for everything new, and anything not sent waits for the next one. A button shouldn't email your team by surprise, so a manual check only records what it finds. Turn on `notifyOnCheck()` if you want it to behave exactly like the scheduled one.
 
-**Check now calls Packagist, OSV and CISA** and can take several seconds on a large app. It uses fresh answers, not the cache. Only package names and versions are sent, exactly as in the package.
+**Check now calls the advisory source** (Valtry's signed API by default, falling back to Packagist, OSV and CISA; see the package's `source` setting) and can take several seconds on a large app. It uses fresh answers, not the cache. Only package names and versions are sent, exactly as in the package.
 
 ### URLs
 
